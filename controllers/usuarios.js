@@ -1,8 +1,9 @@
-const { response } = require('express');
-const Usuario = require('../models/usuarios');
+const { response, request } = require('express');
 const bcryptjs = require('bcryptjs');
 
-const usuariosGet = async (req, res = response) => {
+const Usuario = require('../models/usuarios');
+
+const usuariosGet = async (req = request, res = response) => {
   const { limite = 5, desde = 0 } = req.query;
   const query = { estado: true };
 
@@ -27,14 +28,13 @@ const usuariosPost = async (req, res = response) => {
   await usuario.save();
 
   res.json({
-    msg: 'post API',
     usuario,
   });
 };
 
 const usuariosPut = async (req, res = response) => {
   const { id } = req.params;
-  const { _id, password, google, ...resto } = req.body;
+  const { _id, password, google, email, ...resto } = req.body;
 
   // TODO  validar contra bd
   if (password) {
@@ -50,15 +50,16 @@ const usuariosPut = async (req, res = response) => {
 
 const usuariosPatch = (req, res = response) => {
   res.json({
-    msg: 'patch API',
+    msg: 'patch API - usuariosPatch',
   });
 };
 
 const usuariosDelete = async (req, res = response) => {
   const { id } = req.params;
   const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
+  const usuarioAutenticado = req.usuario;
 
-  res.json(usuario);
+  res.json(usuario, usuarioAutenticado);
 };
 
 module.exports = {
